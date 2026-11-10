@@ -1,0 +1,70 @@
+manifestVersion: 1.1
+id: ert11er-netbird
+storage:
+  dataRoot: data
+backupIgnore:
+  - data/caddy/*
+category: networking
+name: NetBird
+version: "0.82.1"
+tagline: Self-hosted WireGuard overlay network with an all-in-one server
+icon: https://raw.githubusercontent.com/netbirdio/netbird/v0.82.1/docs/media/logo.png
+description: >-
+  NetBird builds a private WireGuard mesh between your devices and servers. Peers
+  connect directly when the network allows it and fall back to a relay when it
+  does not, so you can reach remote machines without opening a port per service.
+
+
+  This package runs the all-in-one NetBird server (management, signal, relay,
+  STUN and the embedded Dex identity provider) together with the web dashboard,
+  behind a small Caddy front proxy on a single port.
+
+
+  **Getting started:**
+
+
+  1. Open NetBird from Umbrel and create the first admin account on the setup
+  page. That page is only available while no user exists, so create the account
+  right after installing.
+
+
+  2. In the dashboard, open **Install** and follow the instructions for your
+  platform. The client command shown there already contains the correct
+  management URL for this device.
+
+
+  3. Approve the new peer in the dashboard, then add groups, access policies and
+  more peers.
+
+
+  **Notes:**
+
+
+  - Open NetBird at http://umbrel.local:20347. Plain HTTP is intentional:
+  NetBird peers speak gRPC (HTTP/2) to the server, and Umbrel's HTTPS ingress
+  only forwards HTTP/1.1.
+
+
+  - Peers reach the server at the same URL. If `.local` names do not resolve on
+  a device, pass the Umbrel's IP address to `netbird up --management-url`
+  instead.
+
+
+  - STUN listens on UDP 3478 and the server on TCP 20347. Forward both on your
+  router if peers outside your LAN should connect directly or use the relay.
+
+
+  - Users, peers, keys and settings are stored in the app's data directory.
+releaseNotes: ""
+developer: NetBird
+website: https://netbird.io/
+dependencies: []
+repo: https://github.com/netbirdio/netbird
+support: https://github.com/netbirdio/netbird/issues
+port: 20347
+gallery: []
+path: ""
+defaultUsername: ""
+defaultPassword: ""
+submitter: ert11er
+submission: https://github.com/ert11er/ert11er-comunity-app-store

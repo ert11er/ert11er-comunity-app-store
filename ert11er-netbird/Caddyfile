@@ -1,0 +1,37 @@
+# Caddy front proxy for NetBird.
+#
+# One origin serves the static dashboard plus everything the NetBird server
+# owns: the REST API, the embedded Dex IdP (/oauth2), the relay (/relay), the
+# websocket proxy (/ws-proxy/) and the gRPC endpoints used by peers.
+#
+# gRPC needs HTTP/2, so those requests are forwarded to the server's h2c
+# listener. Everything else is plain HTTP/1.1 to keep websockets and the
+# dashboard working.
+{
+	admin off
+	auto_https off
+}
+
+:80 {
+	# gRPC-Web from the dashboard is ordinary HTTP/1.1 even though it carries a
+	# grpc content type, so match it before the native gRPC rule below.
+	@grpcweb header Content-Type application/grpc-web*
+	handle @grpcweb {
+		reverse_proxy server:80
+	}
+
+	# Native gRPC from NetBird peers (management and signal exchange).
+	@grpc header Content-Type application/grpc*
+	handle @grpc {
+		reverse_proxy h2c://server:80
+	}
+
+	@backend path /api /api/* /oauth2 /oauth2/* /relay /relay/* /ws-proxy /ws-proxy/*
+	handle @backend {
+		reverse_proxy server:80
+	}
+
+	handle {
+		reverse_proxy dashboard:80
+	}
+}

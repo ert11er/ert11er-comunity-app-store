@@ -1,0 +1,54 @@
+version: "3.7"
+
+services:
+
+  dashboard:
+    image: netbirdio/dashboard:sha-5f59ab6@sha256:ef9f09e3bc9b8bd6f831610dabfeaf21cfdec2fd8c203a137e610a68864f49b0
+    restart: on-failure
+    environment:
+      # Browser-facing origin. The dashboard is served from the same origin as
+      # the management API and the embedded IdP, so relative paths just work.
+      - NETBIRD_MGMT_API_ENDPOINT=http://${DEVICE_DOMAIN_NAME}:${APP_PROXY_PORT}
+      # Peers speak gRPC over plain HTTP/2, so the install instructions must
+      # point at the http:// origin instead of the HTTPS one.
+      - NETBIRD_MGMT_GRPC_API_ENDPOINT=http://${DEVICE_DOMAIN_NAME}:${APP_PROXY_PORT}
+      - AUTH_AUTHORITY=http://${DEVICE_DOMAIN_NAME}:${APP_PROXY_PORT}/oauth2
+      - AUTH_AUDIENCE=netbird-dashboard
+      - AUTH_CLIENT_ID=netbird-dashboard
+      - AUTH_CLIENT_SECRET=
+      - AUTH_SUPPORTED_SCOPES=openid profile email groups
+      - AUTH_REDIRECT_URI=/nb-auth
+      - AUTH_SILENT_REDIRECT_URI=/nb-silent-auth
+      - USE_AUTH0=false
+      # Umbrel terminates TLS itself; the dashboard container only listens on
+      # plain :80 behind the Caddy front proxy.
+      - NGINX_SSL_PORT=443
+      - LETSENCRYPT_DOMAIN=none
+
+  server:
+    image: netbirdio/netbird-server:0.82.1@sha256:7cf0268831221d2d4cc8ca89ca3d8d9419f890f0abb72c1fa9d00aae07e0b788
+    restart: on-failure
+    command: ["--config", "/etc/netbird/config.yaml"]
+    volumes:
+      # Rendered by umbrelOS from config.yaml.template before the app starts.
+      - ${APP_DATA_DIR}/config.yaml:/etc/netbird/config.yaml:ro
+      - ${APP_DATA_DIR}/data/netbird:/var/lib/netbird
+    ports:
+      # STUN. Peers use it for NAT traversal and direct connections.
+      - "3478:3478/udp"
+
+  web:
+    # Single public origin for the dashboard, the management API, OIDC, the
+    # relay, the websocket proxy and the h2c gRPC endpoints. Umbrel's app_proxy
+    # is HTTP/1.1 only and cannot carry the gRPC traffic, so the manifest port
+    # is published directly.
+    image: caddy:2.10.2-alpine@sha256:4c6e91c6ed0e2fa03efd5b44747b625fec79bc9cd06ac5235a779726618e530d
+    restart: on-failure
+    ports:
+      - "20347:80"
+    volumes:
+      - ${APP_DATA_DIR}/Caddyfile:/etc/caddy/Caddyfile:ro
+      - ${APP_DATA_DIR}/data/caddy:/data
+    depends_on:
+      - server
+      - dashboard

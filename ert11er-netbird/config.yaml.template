@@ -1,0 +1,46 @@
+# Rendered by umbrelOS from config.yaml.template on install and on every start,
+# then mounted read-only into the NetBird server container.
+#
+# Schema: https://github.com/netbirdio/netbird/blob/main/combined/config.yaml.example
+
+server:
+  # Management, signal, relay and the embedded IdP share this plain HTTP port.
+  listenAddress: ":80"
+
+  # Plain HTTP is intentional. Umbrel's HTTPS ingress only forwards HTTP/1.1,
+  # while NetBird peers need h2c (HTTP/2 without TLS) for management and signal.
+  exposedAddress: "http://${DEVICE_DOMAIN_NAME}:${APP_PROXY_PORT}"
+
+  stunPorts:
+    - 3478
+
+  metricsPort: 9090
+  healthcheckAddress: ":9000"
+  logLevel: "info"
+  logFile: "console"
+  dataDir: "/var/lib/netbird"
+
+  # Shared secret between the local relay and the management server.
+  authSecret: "${NETBIRD_RELAY_AUTH_SECRET}"
+
+  auth:
+    issuer: "http://${DEVICE_DOMAIN_NAME}:${APP_PROXY_PORT}/oauth2"
+    signKeyRefreshEnabled: true
+    # Both keys below must be base64 of exactly 32 bytes, because NetBird
+    # decodes them with Go's base64.StdEncoding. exports.sh derives them from
+    # the Umbrel install seed.
+    sessionCookieEncryptionKey: "${NETBIRD_SESSION_COOKIE_KEY}"
+    dashboardRedirectURIs:
+      - "http://${DEVICE_DOMAIN_NAME}:${APP_PROXY_PORT}/nb-auth"
+      - "http://${DEVICE_DOMAIN_NAME}:${APP_PROXY_PORT}/nb-silent-auth"
+    cliRedirectURIs:
+      - "http://localhost:53000/"
+
+  reverseProxy:
+    # The Caddy front proxy is the only hop in front of the server, so trust
+    # exactly one forwarded-proxy hop for client IP headers.
+    trustedHTTPProxiesCount: 1
+
+  store:
+    engine: "sqlite"
+    encryptionKey: "${NETBIRD_STORE_ENCRYPTION_KEY}"
