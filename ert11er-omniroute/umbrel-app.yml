@@ -1,0 +1,81 @@
+manifestVersion: 1.1
+id: ert11er-omniroute
+storage:
+  dataRoot: data
+backupIgnore:
+  - data/redis/*
+category: ai
+name: OmniRoute
+version: "3.8.53"
+tagline: One OpenAI-compatible endpoint for 380+ AI providers with automatic fallback
+icon: https://raw.githubusercontent.com/cheaper-inference/OmniRoute/v3.8.53/public/icon-512.png
+description: >-
+  OmniRoute is a free, open-source AI gateway that routes across 380+ cloud and
+  local AI providers through a single OpenAI-compatible endpoint, with automatic
+  fallback when a provider is rate-limited, out of quota or unavailable.
+
+
+  **Getting started:**
+
+
+  1. Open OmniRoute and sign in with the dashboard password shown on the app
+  page in Umbrel. You can change it later in **Settings → Security**.
+
+  2. Connect at least one provider from the dashboard (API key, OAuth, or a
+  local runtime such as Ollama).
+
+  3. Open **Endpoints** and create an API key. The /v1 API is protected, so
+  every client must send this key.
+
+  4. Point any OpenAI-compatible client at http://umbrel.local:20128/v1 (use
+  your device's hostname if it differs). Other apps on Umbrel can reach
+  http://ert11er-omniroute_omniroute_1:20128/v1.
+
+
+  **Highlights:**
+
+
+  - 380+ providers and 150+ free tiers behind one endpoint
+
+  - Smart Combos with 19 routing strategies and tiered fallback
+
+  - Context compression, circuit breakers, quota tracking and usage analytics
+
+  - MCP and A2A endpoints, persistent memory, guardrails and semantic cache
+
+  - Dashboard, keys and usage history stay on your Umbrel
+
+
+  **Requirements:** at least 2 GB of RAM; 4 GB or more is recommended. Long
+  coding-agent sessions can need 8 GB or more.
+releaseNotes: >-
+  Initial OmniRoute release for Umbrel, based on upstream v3.8.53.
+
+
+  - Run OmniRoute locally with the web image, including browser-session
+  providers such as Gemini Web and Claude Web
+
+  - Dashboard, OpenAI-compatible /v1 endpoint and MCP/A2A endpoints on port
+  20128
+
+  - Bundled Redis sidecar for rate limiting and caching, protected by a
+  per-install password
+
+  - Data, keys and settings persist in the app's data directory
+developer: Cheaper Inference
+website: https://www.omniroute.online/
+dependencies: []
+repo: https://github.com/cheaper-inference/OmniRoute
+support: https://github.com/cheaper-inference/OmniRoute/issues
+port: 20128
+gallery:
+  - https://raw.githubusercontent.com/cheaper-inference/OmniRoute/v3.8.53/docs/screenshots/MainOmniRoute.png
+  - https://raw.githubusercontent.com/cheaper-inference/OmniRoute/v3.8.53/docs/screenshots/01-providers.png
+  - https://raw.githubusercontent.com/cheaper-inference/OmniRoute/v3.8.53/docs/screenshots/02-combos.png
+  - https://raw.githubusercontent.com/cheaper-inference/OmniRoute/v3.8.53/docs/screenshots/03-analytics.png
+path: ""
+defaultUsername: ""
+defaultPassword: ""
+deterministicPassword: true
+submitter: ert11er
+submission: https://github.com/ert11er/ert11er-comunity-app-store
